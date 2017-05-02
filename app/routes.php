@@ -1,65 +1,59 @@
 <?php
 
 // Home page
-$app->get('/', "MicroCMS\Controller\HomeController::indexAction")
+$app->get('/', "writerblog\Controller\HomeController::indexAction")
 ->bind('home');
 
-// Detailed info about an article
-$app->match('/article/{id}', "MicroCMS\Controller\HomeController::articleAction")
-->bind('article');
+// Detailed info about a billet
+$app->match('/billet/{id}', "writerblog\Controller\HomeController::billetAction")
+->bind('billet');
 
 // Login form
-$app->get('/login', "MicroCMS\Controller\HomeController::loginAction")
+$app->get('/login', "writerblog\Controller\HomeController::loginAction")
 ->bind('login');
 
 // Admin zone
-$app->get('/admin', "MicroCMS\Controller\AdminController::indexAction")
+$app->get('/admin', "writerblog\Controller\AdminController::indexAction")
 ->bind('admin');
 
-// Add a new article
-$app->match('/admin/article/add', "MicroCMS\Controller\AdminController::addArticleAction")
-->bind('admin_article_add');
 
-// Edit an existing article
-$app->match('/admin/article/{id}/edit', "MicroCMS\Controller\AdminController::editArticleAction")
-->bind('admin_article_edit');
+// billet controller 
 
-// Remove an article
-$app->get('/admin/article/{id}/delete', "MicroCMS\Controller\AdminController::deleteArticleAction")
-->bind('admin_article_delete');
+// Edit an existing billet
+$app->match('/admin/billet/{id}/edit', "writerblog\Controller\AdminController::billetEditAction")
+->bind('admin_billet_edit');
+
+// Add a new billet
+$app->match('/admin/billet/add', "writerblog\Controller\AdminController::billetAddAction")
+->bind('admin_billet_add');
+
+// Remove a billet
+$app->get('/admin/billet/{id}/delete', "writerblog\Controller\AdminController::billetDeleteAction")
+->bind('admin_billet_delete');
+
+
+// // comment controller 
 
 // Edit an existing comment
-$app->match('/admin/comment/{id}/edit', "MicroCMS\Controller\AdminController::editCommentAction")
+$app->match('/admin/comment/{id}/edit', "writerblog\Controller\AdminController::commentEditAction")
 ->bind('admin_comment_edit');
 
 // Remove a comment
-$app->get('/admin/comment/{id}/delete', "MicroCMS\Controller\AdminController::deleteCommentAction")
+$app->get('/admin/comment/{id}/delete', "writerblog\Controller\AdminController::commentDeleteAction")
 ->bind('admin_comment_delete');
 
-// Add a user
-$app->match('/admin/user/add', "MicroCMS\Controller\AdminController::addUserAction")
-->bind('admin_user_add');
+
+// user controller
 
 // Edit an existing user
-$app->match('/admin/user/{id}/edit', "MicroCMS\Controller\AdminController::editUserAction")
+$app->match('/admin/user/{id}/edit', "writerblog\Controller\AdminController::userEditAction")
 ->bind('admin_user_edit');
 
+// Add a user
+$app->match('/admin/user/add', "writerblog\Controller\AdminController::userAddAction")
+->bind('admin_user_add');
+
 // Remove a user
-$app->get('/admin/user/{id}/delete', "MicroCMS\Controller\AdminController::deleteUserAction")
+$app->get('/admin/user/{id}/delete', "writerblog\Controller\AdminController::userDeleteAction")
 ->bind('admin_user_delete');
 
-// API : get all articles
-$app->get('/api/articles', "MicroCMS\Controller\ApiController::getArticlesAction")
-->bind('api_articles');
-
-// API : get an article
-$app->get('/api/article/{id}', "MicroCMS\Controller\ApiController::getArticleAction")
-->bind('api_article');
-
-// API : create an article
-$app->post('/api/article', "MicroCMS\Controller\ApiController::addArticleAction")
-->bind('api_article_add');
-
-// API : remove an article
-$app->delete('/api/article/{id}', "MicroCMS\Controller\ApiController::deleteArticleAction")
-->bind('api_article_delete');
