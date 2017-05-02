@@ -1,56 +1,65 @@
 <?php
 
-namespace MicroCMS\Controller;
+namespace writerblog\Controller;
 
 use Silex\Application;
 use Symfony\Component\HttpFoundation\Request;
-use MicroCMS\Domain\Comment;
-use MicroCMS\Form\Type\CommentType;
+use writerblog\Domain\Comment;
+use writerblog\Form\Type\CommentType;
 
 class HomeController {
-
+    
     /**
      * Home page controller.
      *
      * @param Application $app Silex application
      */
     public function indexAction(Application $app) {
-        $articles = $app['dao.article']->findAll();
-        return $app['twig']->render('index.html.twig', array('articles' => $articles));
+        $billets = $app['dao.billet']->readAll();
+        return $app['twig']->render('index.html.twig', array('billets' => $billets));
     }
-    
+
     /**
-     * Article details controller.
+     * Billet details controller.
      *
-     * @param integer $id Article id
+     * @param integer $id Billet id
      * @param Request $request Incoming request
      * @param Application $app Silex application
      */
-    public function articleAction($id, Request $request, Application $app) {
-        $article = $app['dao.article']->find($id);
+    public function billetAction($id, Request $request, Application $app) {
+        $billet = $app['dao.billet']->read($id);
         $commentFormView = null;
         if ($app['security.authorization_checker']->isGranted('IS_AUTHENTICATED_FULLY')) {
-            // A user is fully authenticated : he can add comments
             $comment = new Comment();
-            $comment->setArticle($article);
-            $user = $app['user'];
-            $comment->setAuthor($user);
+            $comment->setAuthor($app['user']);
+            $comment->setBillet($billet);
+            $comment->setDate(date('Y-m-d H:i:s'));
             $commentForm = $app['form.factory']->create(CommentType::class, $comment);
             $commentForm->handleRequest($request);
             if ($commentForm->isSubmitted() && $commentForm->isValid()) {
-                $app['dao.comment']->save($comment);
-                $app['session']->getFlashBag()->add('success', 'Your comment was successfully added.');
+                if ($comment->getContent() == null) {
+                    $app['session']->getFlashBag()->add('notice', 'Your comment cannot be empty.');
+                    return $app->redirect($app['url_generator']->generate('billet', array('id' => $id)));  
+                } else {
+                    $app['dao.comment']->save($comment);
+                    $app['session']->getFlashBag()->add('success', 'Votre commentaire a été ajouté.');
+                }
             }
             $commentFormView = $commentForm->createView();
         }
-        $comments = $app['dao.comment']->findAllByArticle($id);
+        $nbComments = $app['dao.billet']->countComments($id);
+        $billet->setNbComments($nbComments);
+        $app['dao.billet']->update($billet);
+
+        $comments = $app['dao.comment']->readAllByIdBillet($id);
         
-        return $app['twig']->render('article.html.twig', array(
-            'article' => $article,
+        return $app['twig']->render('billet.html.twig', array(
+            'billet' => $billet,
             'comments' => $comments,
-            'commentForm' => $commentFormView));
+            'commentForm' => $commentFormView
+            ));
     }
-    
+
     /**
      * User login controller.
      *
@@ -60,7 +69,7 @@ class HomeController {
     public function loginAction(Request $request, Application $app) {
         return $app['twig']->render('login.html.twig', array(
             'error'         => $app['security.last_error']($request),
-            'last_username' => $app['session']->get('_security.last_username'),
-        ));
+            'last_username' => $app['session']->get('_security.last_username')
+            ));
     }
 }
