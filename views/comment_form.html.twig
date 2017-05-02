@@ -1,35 +1,51 @@
-{% extends 'layout.html.twig' %}
-{% set adminMenu = true %}
+{% extends "layout.html.twig" %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Editer un commentaire{% endblock %}
 
 {% block content %}
-<h2 class="text-center">{{ block('title') }}</h2>
+
 {% for flashMessage in app.session.flashbag.get('success') %}
 <div class="alert alert-success">
     {{ flashMessage }}
 </div>
 {% endfor %}
 
-<div class="well">
-{{ form_start(commentForm, { 'attr': {'class': 'form-horizontal'} }) }}
-    <div class="form-group">
-        {{ form_label(commentForm.content, null, { 'label_attr':  {
-            'class': 'col-sm-4 control-label'
-        }}) }}
-        <div class="col-sm-6">
-            {{ form_errors(commentForm.content) }}
-            {{ form_widget(commentForm.content, { 'attr':  {
-                'class': 'form-control',
-                'rows': '4'                
-            }}) }}
-        </div>
-    </div>
-    <div class="form-group">
-        <div class="col-sm-offset-4 col-sm-3">
-            <input type="submit" class="btn btn-primary" value="Save" />
-        </div>
-    </div>
-{{ form_end(commentForm) }}
+{% for flashMessage in app.session.flashbag.get('notice') %}
+<div class="alert alert-danger">
+    {{ flashMessage }}
 </div>
+{% endfor %}
+
+<div class="container">
+    <div class="row">
+    <h2>{{ billet.title }}</h2>
+    <p>{{ billet.content|raw }}</p>
+        
+    </div>
+</div>
+
+<h1>{{ block('title') }}</h1>
+
+<div class="container">
+        <div class="row">
+            <div class="col-sm-offset-3 col-sm-6">
+                {{ form_start(commentForm) }}
+                    <div class="form-group">
+                        {{ form_errors(commentForm.content) }}
+                        {{ form_widget(commentForm.content, {'attr': {
+                            'rows': '4',
+                            'class': 'form-control',
+                            'placeholder': 'Insérez votre commentaire'
+                        }}) }}
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="glyphicon glyphicon-pencil"></span> Envoyer
+                        </button>
+                    </div>
+                {{ form_end(commentForm) }}
+        </div>
+    </div>
+</div>
+
 {% endblock %}
