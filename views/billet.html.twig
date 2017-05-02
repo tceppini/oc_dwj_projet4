@@ -1,0 +1,61 @@
+{% extends "layout.html.twig" %}
+
+{% block title %}{{ billet.title }}{% endblock %}
+
+{% block content %}
+<h1>Billet simple pour l'Alaska</h1>
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-offset-1 col-xs-12 col-md-10">
+            {% for flashMessage in app.session.flashbag.get('notice') %}
+                <div class="alert alert-danger">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+            {% for flashMessage in app.session.flashbag.get('success') %}
+                <div class="alert alert-success">
+                    {{ flashMessage }}
+                </div>
+            {% endfor %}
+            <h2>{{ billet.title }}</h2>
+            <p>{{ billet.content|raw }}</p>            
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-offset-1 col-xs-12 col-md-10">
+            <h3>Ajouter un commentaire</h3>
+            {% if app.user %}
+                {{ form_start(commentForm) }}
+                    <div class="form-group">
+                        {{ form_errors(commentForm.content) }}
+                        {{ form_widget(commentForm.content, {'attr': {
+                            'rows': '8',
+                            'class': 'form-control',
+                            'placeholder': 'Insérez votre commentaire'
+                        }}) }}
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary" id="commentButton">
+                            <span class="glyphicon glyphicon-pencil"></span> Envoyer
+                        </button>
+                    </div>
+                {{ form_end(commentForm) }}
+            {% else %}
+                <p><a href="{{ path('login') }}">Connectez-vous</a> pour ajouter un commentaire.</p>
+            {% endif %}
+        </div>
+    </div>  
+    <div class="row">
+        <div class="col-sm-offset-1 col-xs-10 col-md-10 comments">
+            <h3>Commentaires <span>({{ billet.nbComments }})</span></h3>
+            {% for comment in comments %}
+                <p><strong>{{ comment.author.username }}</strong><span> Posté le {{ comment.date|date("d/m/y \\à H \\h i \\m\\i\\n") }}</span><br/>
+                {{ comment.content }} </p>
+            {% else %}
+                <p><i>Pas de commentaire.</i></p>
+            {% endfor %}
+        </div>
+    </div>    
+</div>
+{% endblock %}
