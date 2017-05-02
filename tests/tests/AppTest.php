@@ -1,6 +1,6 @@
 <?php
 
-namespace MicroCMS\Test;
+namespace writerblog\Tests;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
@@ -53,16 +53,14 @@ class AppTest extends WebTestCase
     {
         return array(
             array('/'),
-            array('/article/1'),
+            array('/billet/1'),
             array('/login'),
             array('/admin'),
-            array('/admin/article/add'),
-            array('/admin/article/1/edit'),
+            array('/admin/billet/add'),
+            array('/admin/billet/1/edit'),
             array('/admin/comment/1/edit'),
             array('/admin/user/add'),
             array('/admin/user/1/edit'),
-            array('/api/articles'),
-            array('/api/article/1'),
             ); 
     }
 }
