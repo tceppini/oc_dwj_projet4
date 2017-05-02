@@ -1,73 +1,64 @@
 <?php
 
-namespace MicroCMS\DAO;
+namespace writerblog\DAO;
 
-use MicroCMS\Domain\Comment;
+use writerblog\Domain\Comment;
+use writerblog\DAO\BilletDAO;
+use writerblog\DAO\UserDAO;
 
-class CommentDAO extends DAO 
-{
+class CommentDAO extends DAO {
+
     /**
-     * @var \MicroCMS\DAO\ArticleDAO
+     * @var \writerblog\DAO\BilletDAO
      */
-    private $articleDAO;
+    private $billetDAO;
 
     /**
-     * @var \MicroCMS\DAO\UserDAO
+     * @var \writerblog\DAO\UserDAO
      */
     private $userDAO;
-
-    public function setArticleDAO(ArticleDAO $articleDAO) {
-        $this->articleDAO = $articleDAO;
+    
+    public function setBilletDAO(BilletDAO $billetDAO) {
+        $this->billetDAO = $billetDAO;
+        return $this;
     }
-
     public function setUserDAO(UserDAO $userDAO) {
         $this->userDAO = $userDAO;
+        return $this;
     }
 
     /**
-     * Returns a list of all comments, sorted by date (most recent first).
+     * Return a list of all comments for a billet, sorted by id (most recent first).
+     *
+     * @param integer $idBillet The billet id.
+     *
+     * @return array A list of all comments for the billet.
+     */
+    public function readAllByIdBillet($idBillet) {
+        $sql = "select * from P4_t_comment where billet_id = ? order by com_id desc";
+        $result = $this->getDb()->fetchAll($sql, array($idBillet));
+        $dataComment = array();
+        foreach ($result as $row) {
+            $commentId = $row['com_id'];
+            $dataComment[$commentId] = $this->buildDomainObject($row);
+        }
+        return $dataComment;
+    }
+
+    /**
+     * Returns a list of all comments, sorted by id (most recent first).
      *
      * @return array A list of all comments.
      */
-    public function findAll() {
-        $sql = "select * from t_comment order by com_id desc";
+    public function readAll() {
+        $sql = "select * from P4_t_comment order by billet_id desc";
         $result = $this->getDb()->fetchAll($sql);
-
-        // Convert query result to an array of domain objects
-        $entities = array();
+        $dataComment = array();
         foreach ($result as $row) {
-            $id = $row['com_id'];
-            $entities[$id] = $this->buildDomainObject($row);
+            $commentId = $row['com_id'];
+            $dataComment[$commentId] = $this->buildDomainObject($row);
         }
-        return $entities;
-    }
-
-    /**
-     * Return a list of all comments for an article, sorted by date (most recent last).
-     *
-     * @param integer $articleId The article id.
-     *
-     * @return array A list of all comments for the article.
-     */
-    public function findAllByArticle($articleId) {
-        // The associated article is retrieved only once
-        $article = $this->articleDAO->find($articleId);
-
-        // art_id is not selected by the SQL query
-        // The article won't be retrieved during domain objet construction
-        $sql = "select com_id, com_content, usr_id from t_comment where art_id=? order by com_id";
-        $result = $this->getDb()->fetchAll($sql, array($articleId));
-
-        // Convert query result to an array of domain objects
-        $comments = array();
-        foreach ($result as $row) {
-            $comId = $row['com_id'];
-            $comment = $this->buildDomainObject($row);
-            // The associated article is defined for the constructed comment
-            $comment->setArticle($article);
-            $comments[$comId] = $comment;
-        }
-        return $comments;
+        return $dataComment;
     }
 
     /**
@@ -75,58 +66,79 @@ class CommentDAO extends DAO
      *
      * @param integer $id The comment id
      *
-     * @return \MicroCMS\Domain\Comment|throws an exception if no matching comment is found
+     * @return \writerblog\Domain\Comment|throws an exception if no matching comment is found
      */
-    public function find($id) {
-        $sql = "select * from t_comment where com_id=?";
+    public function read($id) {
+        $sql = "select * from P4_t_comment where com_id = ?";
         $row = $this->getDb()->fetchAssoc($sql, array($id));
-
-        if ($row)
+        if ($row) {
             return $this->buildDomainObject($row);
-        else
-            throw new \Exception("No comment matching id " . $id);
+        } else {
+            throw new \Exception("No comment matching id : " . $id);
+        }
+    }
+
+    /**
+     * Creates a Comment object based on a DB row.
+     *
+     * @param array $row The DB row containing comment data.
+     * @return \writerblog\Domain\Comment
+     */
+    public function buildDomainObject($row) {
+        $comment = new Comment();
+        $comment->setId($row['com_id']);
+        $comment->setContent($row['com_content']);
+        $comment->setDate($row['com_date']);
+        if (array_key_exists('billet_id', $row)) {
+            $idBillet = $row['billet_id'];
+            $billet = $this->billetDAO->read($idBillet);
+            $comment->setBillet($billet);
+        }
+        if (array_key_exists('user_id', $row)) {
+            $userId = $row['user_id'];
+            $author = $this->userDAO->read($userId);
+            $comment->setAuthor($author);
+        }
+        return $comment;
     }
 
     /**
      * Saves a comment into the database.
      *
-     * @param \MicroCMS\Domain\Comment $comment The comment to save
+     * @param \writerblog\Domain\Comment $comment The comment to save
      */
     public function save(Comment $comment) {
-        $commentData = array(
-            'art_id' => $comment->getArticle()->getId(),
-            'usr_id' => $comment->getAuthor()->getId(),
-            'com_content' => $comment->getContent()
-            );
-
+        $dataComment = array(
+            'com_content' => $comment->getContent(),
+            'com_date' => $comment->getDate(),
+            'billet_id' => $comment->getBillet()->getId(),
+            'user_id' => $comment->getAuthor()->getId()
+        );
         if ($comment->getId()) {
-            // The comment has already been saved : update it
-            $this->getDb()->update('t_comment', $commentData, array('com_id' => $comment->getId()));
+            $this->getDb()->update('P4_t_comment', $dataComment, array('com_id' => $comment->getId()));
         } else {
-            // The comment has never been saved : insert it
-            $this->getDb()->insert('t_comment', $commentData);
-            // Get the id of the newly created comment and set it on the entity.
+            $this->getDb()->insert('P4_t_comment', $dataComment);
             $id = $this->getDb()->lastInsertId();
             $comment->setId($id);
         }
     }
 
     /**
-     * Removes all comments for an article
+     * Removes all comments for a billet
      *
-     * @param integer $articleId The id of the article
+     * @param $id The id of the billet
      */
-    public function deleteAllByArticle($articleId) {
-        $this->getDb()->delete('t_comment', array('art_id' => $articleId));
+    public function deleteAllByIdBillet($id) {
+        $this->getDb()->delete('P4_t_comment', array('billet_id' => $id));
     }
 
-    /**
+     /**
      * Removes all comments for a user
      *
-     * @param integer $userId The id of the user
+     * @param integer $id The id of the user
      */
-    public function deleteAllByUser($userId) {
-        $this->getDb()->delete('t_comment', array('usr_id' => $userId));
+    public function deleteAllByIdUser($id) {
+        $this->getDb()->delete('P4_t_comment', array('user_id' => $id));        
     }
 
     /**
@@ -135,34 +147,6 @@ class CommentDAO extends DAO
      * @param integer $id The comment id
      */
     public function delete($id) {
-        // Delete the comment
-        $this->getDb()->delete('t_comment', array('com_id' => $id));
-    }
-
-    /**
-     * Creates an Comment object based on a DB row.
-     *
-     * @param array $row The DB row containing Comment data.
-     * @return \MicroCMS\Domain\Comment
-     */
-    protected function buildDomainObject(array $row) {
-        $comment = new Comment();
-        $comment->setId($row['com_id']);
-        $comment->setContent($row['com_content']);
-
-        if (array_key_exists('art_id', $row)) {
-            // Find and set the associated article
-            $articleId = $row['art_id'];
-            $article = $this->articleDAO->find($articleId);
-            $comment->setArticle($article);
-        }
-        if (array_key_exists('usr_id', $row)) {
-            // Find and set the associated author
-            $userId = $row['usr_id'];
-            $user = $this->userDAO->find($userId);
-            $comment->setAuthor($user);
-        }
-        
-        return $comment;
+        $this->getDb()->delete('P4_t_comment', array('com_id' => $id));        
     }
 }

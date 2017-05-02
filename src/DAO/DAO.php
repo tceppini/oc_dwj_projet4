@@ -1,18 +1,18 @@
 <?php
 
-namespace MicroCMS\DAO;
+namespace writerBlog\DAO;
 
 use Doctrine\DBAL\Connection;
 
-abstract class DAO 
-{
+abstract class DAO {
+    
     /**
      * Database connection
      *
      * @var \Doctrine\DBAL\Connection
      */
     private $db;
-
+    
     /**
      * Constructor
      *
@@ -27,7 +27,7 @@ abstract class DAO
      *
      * @return \Doctrine\DBAL\Connection The database connection object
      */
-    protected function getDb() {
+    public function getDb() {
         return $this->db;
     }
 
@@ -35,5 +35,6 @@ abstract class DAO
      * Builds a domain object from a DB row.
      * Must be overridden by child classes.
      */
-    protected abstract function buildDomainObject(array $row);
+    protected abstract function buildDomainObject($row);
+
 }
