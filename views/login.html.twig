@@ -1,31 +1,39 @@
-{% extends 'layout.html.twig' %}
+{% extends "layout.html.twig" %}
 
-{% block title %}User authentication{% endblock %}
+{% block title %}Connexion{% endblock %}
 
 {% block content %}
-<h2 class="text-center">{{ block('title') }}</h2>
-{% if error %}
-<div class="alert alert-danger">
-    <strong>Login failed!</strong> {{ error }}
-</div>
-{% endif %}
-<div class="well">
-    <form class="form-signin form-horizontal" role="form" action="{{ path('login_check') }}" method="post">
-        <div class="form-group">
-            <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
-            <input type="text" name="_username" value="{{ last_username }}" class="form-control" placeholder="Enter your username" required autofocus>
+    <h1> {{ block('title')}} </h1>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        <strong>Login failed!</strong> {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="container loginForm">
+        <div class="row">
+            <div class="col-sm-offset-2 col-sm-8">
+                <form class="form-horizontal well" action="{{ path('login_check') }} " method="post">
+                    <div class="form-group">
+                        <label for="username" class="control col-xs-2">Identifiant</label>
+                        <div class="col-xs-12">
+                            <input type="text" class="form-control" id="username" name="_username" value="{{ last_username }}" placeholder="Entrez identifiant" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="password" class="control col-xs-4">Mot de passe</label>
+                        <div class="col-xs-12">
+                            <input type="password" class="form-control" id="password" name="_password" placeholder="Entrez mot de passe" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-xs-offset-3 col-md-offset-5 col-xs-6">
+                            <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-log-in"></span> Se connecter</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
-                <input type="password" name="_password" class="form-control" placeholder="Enter your password" required>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-sm-6 col-sm-offset-3 col-md-4 col-md-offset-4">
-                <button type="submit" class="btn btn-default btn-primary"><span class="glyphicon glyphicon-log-in"></span> Login</button>
-            </div>
-        </div>
-    </form>
-</div>
+    </div>
 {% endblock %}

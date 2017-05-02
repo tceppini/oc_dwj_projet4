@@ -3,10 +3,30 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-{% for article in articles %}
-<article>
-    <h2><a class="articleTitle" href="{{ path('article', { 'id': article.id }) }}">{{ article.title }}</a></h2>
-    <p>{{ article.content }}</p>
-</article>
+
+<h1>Billet simple pour l'Alaska</h1>
+{% for billet in billets %}
+    <div class="container index">
+        <div class="row">
+             <div class="col-sm-offset-1 col-sm-11 col-md-11 billet">
+                <h2><a href="{{ path('billet', { 'id': billet.id }) }}">{{ billet.title }}</a></h2>
+                <div class="date">
+                    <strong>Posté le {{ billet.dateAjout|date("d/m/y") }} 
+                    {% if billet.dateModif != "0000-00-00" %}
+                        (modifié le : {{ billet.dateModif|date("d/m/y") }})
+                    {% endif %}</strong>
+                </div>
+                <div class="comments">
+                    {{ billet.nbComments }} commentaires
+                </div>
+                <div class="content">
+                    <p>{{ billet.content | truncate(600)|raw }}</p>
+                </div>
+                <div class="suite">
+                    <p><a href="{{ path('billet', { 'id': billet.id }) }}">Lire la suite</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endfor %}
 {% endblock %}
