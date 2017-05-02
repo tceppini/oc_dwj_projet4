@@ -1,9 +1,12 @@
 <?php
 
-namespace MicroCMS\Domain;
+namespace writerblog\Domain;
 
-class Comment 
-{
+use writerblog\Domain\Billet;
+use writerblog\Domain\User;
+
+class Comment {
+
     /**
      * Comment id.
      *
@@ -12,59 +15,70 @@ class Comment
     private $id;
 
     /**
+     * Comment content.
+     *
+     * @var string
+     */
+    private $content;
+    
+    /**
      * Comment author.
      *
-     * @var \MicroCMS\Domain\User
+     * @var \writerblog\Domain\User
      */
     private $author;
 
     /**
-     * Comment content.
+     * Associated billet.
      *
-     * @var integer
+     * @var \writerblog\Domain\Billet
      */
-    private $content;
+    private $billet;
 
     /**
-     * Associated article.
+     * Date the comment was posted.
      *
-     * @var \MicroCMS\Domain\Article
+     * @var date
      */
-    private $article;
+    private $date;
 
     public function getId() {
         return $this->id;
     }
-
     public function setId($id) {
         $this->id = $id;
+        return $this;
+    }
+    
+    public function getContent() {
+        return $this->content;
+    }
+    public function setContent($content) {
+        $this->content = $content;
         return $this;
     }
 
     public function getAuthor() {
         return $this->author;
     }
-
     public function setAuthor(User $author) {
         $this->author = $author;
         return $this;
     }
 
-    public function getContent() {
-        return $this->content;
+    public function getBillet() {
+        return $this->billet;
     }
-
-    public function setContent($content) {
-        $this->content = $content;
+    public function setBillet(Billet $billet) {
+        $this->billet = $billet;
         return $this;
     }
 
-    public function getArticle() {
-        return $this->article;
+    public function getDate() {
+        return $this->date;
     }
-
-    public function setArticle(Article $article) {
-        $this->article = $article;
+    public function setDate($date) {
+        $this->date = $date;
         return $this;
     }
 }

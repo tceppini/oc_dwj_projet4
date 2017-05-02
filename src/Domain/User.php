@@ -1,25 +1,26 @@
 <?php
 
-namespace MicroCMS\Domain;
+namespace writerblog\Domain;
 
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
-class User implements UserInterface
-{
+class User implements UserInterface {
+
     /**
      * User id.
      *
      * @var integer
      */
     private $id;
-
+    
     /**
-     * User name.
+     * User user name.
      *
      * @var string
      */
     private $username;
-
+    
     /**
      * User password.
      *
@@ -34,7 +35,7 @@ class User implements UserInterface
      */
     private $salt;
 
-    /**
+   /**
      * Role.
      * Values : ROLE_USER or ROLE_ADMIN.
      *
@@ -45,7 +46,6 @@ class User implements UserInterface
     public function getId() {
         return $this->id;
     }
-
     public function setId($id) {
         $this->id = $id;
         return $this;
@@ -57,7 +57,6 @@ class User implements UserInterface
     public function getUsername() {
         return $this->username;
     }
-
     public function setUsername($username) {
         $this->username = $username;
         return $this;
@@ -69,7 +68,6 @@ class User implements UserInterface
     public function getPassword() {
         return $this->password;
     }
-
     public function setPassword($password) {
         $this->password = $password;
         return $this;
@@ -81,7 +79,6 @@ class User implements UserInterface
     public function getSalt() {
         return $this->salt;
     }
-
     public function setSalt($salt) {
         $this->salt = $salt;
         return $this;
@@ -90,7 +87,6 @@ class User implements UserInterface
     public function getRole() {
         return $this->role;
     }
-
     public function setRole($role) {
         $this->role = $role;
         return $this;
@@ -99,15 +95,12 @@ class User implements UserInterface
     /**
      * @inheritDoc
      */
-    public function getRoles()
-    {
+    public function getRoles() {
         return array($this->getRole());
     }
-
+    
     /**
      * @inheritDoc
      */
-    public function eraseCredentials() {
-        // Nothing to do here
-    }
+    public function eraseCredentials() {}
 }
