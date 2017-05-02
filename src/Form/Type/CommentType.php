@@ -1,20 +1,18 @@
 <?php
 
-namespace MicroCMS\Form\Type;
+namespace writerblog\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 
-class CommentType extends AbstractType
-{
-    public function buildForm(FormBuilderInterface $builder, array $options)
-    {
+class CommentType extends AbstractType {
+
+    public function buildForm(FormBuilderInterface $builder, array $options) {
         $builder->add('content', TextareaType::class);
     }
 
-    public function getName()
-    {
+    public function getName() {
         return 'comment';
     }
 }
