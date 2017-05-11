@@ -2,17 +2,17 @@
 
 // Doctrine (db)
 $app['db.options'] = array(
-    'driver'   => 'pdo_mysql',
-    'charset'  => 'utf8',
-    'host'     => '127.0.0.1',  // Mandatory for PHPUnit testing
-    'port'     => '3306',
-    'dbname'   => 'microcms',
-    'user'     => 'microcms_user',
-    'password' => 'secret',
-);
+	'driver'   => 'pdo_mysql',
+	'charset'  => 'utf8',
+	'host'     => 'tceppinitamcms.mysql.db',
+	'port'     => '3306',
+	'dbname'   => 'tceppinitamcms',
+	'user'     => 'tceppinitamcms',
+	'password' => 'Gtars57574',
+	);
 
 // enable the debug mode
 $app['debug'] = true;
 
-// define log parameters
-$app['monolog.level'] = 'INFO';
+// define log level
+$app['monolog.level'] = 'DEBUG';
