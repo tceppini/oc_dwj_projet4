@@ -2,7 +2,10 @@
 
 namespace writerblog\Controller;
 
+use writerblog\Domain\User;
+use writerblog\Form\Type\RegisterType;
 use Silex\Application;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use writerblog\Domain\Comment;
 use writerblog\Form\Type\CommentType;
@@ -71,5 +74,37 @@ class HomeController {
             'error'         => $app['security.last_error']($request),
             'last_username' => $app['session']->get('_security.last_username')
             ));
+    }
+    
+     /**
+     * User registration controller.
+     *
+     * @param Request $request
+     * @param Application $app Silex application
+     * @return Response
+     */
+     public function registerAction(Request $request, Application $app)
+     {
+        $user = new User();
+        $userForm = $app['form.factory']->create(RegisterType::class, $user);
+        $userForm->handleRequest($request);
+        if ($userForm->isSubmitted() && $userForm->isValid()) {
+            // generate a random salt value
+            $salt = substr(md5(time()), 0, 23);
+            $user->setSalt($salt);
+            $plainPassword = $user->getPassword();
+            // find the default encoder
+            $encoder = $app['security.encoder.bcrypt'];
+            // compute the encoded password
+            $password = $encoder->encodePassword($plainPassword, $user->getSalt());
+            $user->setPassword($password);
+            $user->setRole('ROLE_USER');
+            $app['dao.user']->save($user);
+            return $app->redirect($app['url_generator']->generate('login'));
+        }
+        return $app['twig']->render('register.html.twig', [
+            'title'    => 'New user',
+            'userForm' => $userForm->createView()
+            ]);
     }
 }
